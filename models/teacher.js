@@ -15,13 +15,17 @@ const TeacherSchema = new Schema({
     parent_name:{type:String,required:true},
     doc_id:{type:String,required:true,unique:true},
     document:{type:String,required:true},
-    avatar:{type:String,default:''},
+    teacher_avatar:{type:String,default:''},
     state:{type:String,required:true},
     distc:{type:String,required:true},
     post_office:{type:String,required:true},
     pincode:{type:String,required:true},
-    doc_front_avatar:{type:String,default:''},
-    doc_back_avatar:{type:String,default:''},
+    teacher_doc_front:{type:String,default:''},
+    teacher_doc_back:{type:String,default:''},
+    certificate_doc_front:{type:String,default:''},
+    certificate_doc_back:{type:String,default:''},
+
+
     classes: { type: mongoose.Schema.Types.ObjectId, ref: 'Classes'},
     students: { type: mongoose.Schema.Types.ObjectId, ref: 'Student'},
 

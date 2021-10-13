@@ -150,7 +150,7 @@ const teacherController = {
     } catch (error) {
       return next(CustomErrorHandler.serverError());
     }
-    res.status(200).json({ status: true, message: "successfully deleted teacher!",data:document });
+    res.status(200).json({ status: true, message: "successfully show all teacher!",data:document });
   },
 };
 

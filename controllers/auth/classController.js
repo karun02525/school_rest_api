@@ -74,8 +74,9 @@ const classController = {
       return next(error);
     }
     try {
-      const document = await Classes.findOneAndRemove({ _id: id });
-      console.log(document);
+      let document;
+       document = await Classes.findOneAndRemove({ _id: id });
+         await AssignTeacher.findOneAndRemove({ class_id: id });
       if (document==null) {
         return res
           .status(400)

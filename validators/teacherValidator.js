@@ -2,7 +2,6 @@ import Joi from "joi";
   
 //validation
 const teacherSchema = Joi.object({
-    
     fname:Joi.string().min(3).max(10).required(),
     lname:Joi.string().min(3).max(10).required(),
     email:Joi.string().min(3).max(25).email().required(),
