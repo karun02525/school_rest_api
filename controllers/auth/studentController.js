@@ -121,7 +121,7 @@ const studentController = {
   async findAllStudent(req, res, next) {
     let document;
     try {
-      document = await Student.find().populate('parent').populate('classes', '_id name').populate('teacher','fname lname email mobile gender qualification avatar')
+      document = await Student.find().populate('classes', '_id name')
         .select("-updatedAt -__v")
         .sort({ _id: 1 });
     } catch (error) {

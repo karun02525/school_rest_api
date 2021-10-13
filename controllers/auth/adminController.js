@@ -18,7 +18,7 @@ var storage = multer.diskStorage({
 var upload = multer({ storage: storage });
 
 var uploadMultiple = upload.fields([
-  { name: "avatar" },
+  { name: "student_avatar" },
   { name: "parent_avatar" },
   { name: "student_doc_front" },
   { name: "student_doc_back" },
@@ -26,92 +26,7 @@ var uploadMultiple = upload.fields([
   { name: "parent_doc_back" },
 ]);
 
-const storage1 = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, "uploads/"),
-  filename: (req, file, cb) => {
-    const uniqueName = `${Date.now()}-${Math.round(
-      Math.random() * 1e9
-    )}${path.extname(file.originalname)}`;
-    cb(null, Date.now() + uniqueName);
-  },
-});
-
-const uploadProfile = multer({ storage1, storage1 }).single("avatar");
-
-const uploadFrontDocments = multer({ storage1 }).single("doc_front_avatar");
-
-const uploadBackDocments = multer({ storage1 }).single("doc_back_avatar");
-
 const adminController = {
-  async uploadStudentFiles(req, res, next) {
-    uploadMultiple(req, res, async (err) => {
-      if (err) {
-        return next(CustomErrorHandler.serverError());
-      }
-
-      //validation
-      const { id } = req.body;
-      const schema = Joi.object({
-        id: Joi.string().length(24).required(),
-      });
-      const { error } = schema.validate({ id });
-      if (error) {
-        return next(error);
-      }
-
-      const file = req.files;
-      if (file) {
-        const key = Object.keys(file)[0];
-
-        if (key === "avatar") {
-          doOperationStudentUpdate(
-            id,
-            { avatar: file["avatar"][0].path },
-            next
-          );
-        } else if (key === "parent_avatar") {
-          doOperationStudentUpdate(
-            id,
-            { parent_avatar: file["parent_avatar"][0].path },
-            next
-          );
-        } else if (key === "student_doc_front") {
-          doOperationStudentUpdate(
-            id,
-            { student_doc_front: file["student_doc_front"][0].path },
-            next
-          );
-        } else if (key === "student_doc_back") {
-          doOperationStudentUpdate(
-            id,
-            { student_doc_back: file["student_doc_back"][0].path },
-            next
-          );
-        } else if (key === "parent_doc_front") {
-          doOperationStudentUpdate(
-            id,
-            { parent_doc_front: file["parent_doc_front"][0].path },
-            next
-          );
-        } else if (key === "parent_doc_back") {
-          doOperationStudentUpdate(
-            id,
-            { parent_doc_back: file["parent_doc_back"][0].path },
-            next
-          );
-        } else {
-          res.status(400).json({
-            status: false,
-            message: 'photo upload has failed.',
-          });
-        }
-      }
-      res.json({
-        status: true,
-        message: 'photo updated successfully!!',
-      });
-    });
-  },
 
   // Assign Roll No
   async assignRollno(req, res, next) {
@@ -252,6 +167,7 @@ const adminController = {
       .status(200)
       .json({ status: true, message: "updates successfully", data: document });
   },
+
   //Find assign teacher
   async findAssignTeacher(req, res, next) {
     let document;
@@ -264,6 +180,7 @@ const adminController = {
     }
     res.json({ status: true, data: document });
   },
+
 
   //delete assign class teacher
   async deleteAssignClassTeacher(req, res, next) {
@@ -282,131 +199,78 @@ const adminController = {
       .json({ status: true, message: "successfully deleted assign teacher!" });
   },
 
-  //Upload Profile Student,Teacher******************************
-  async uploadProfilePhoto(req, res, next) {
-    uploadProfile(req, res, async (err) => {
+
+  //*************************************************** Upload Students & Parents ********************** */   
+  async uploadStudentFiles(req, res, next) {
+    uploadMultiple(req, res, async (err) => {
       if (err) {
         return next(CustomErrorHandler.serverError());
       }
+
       //validation
+      const { id } = req.body;
       const schema = Joi.object({
         id: Joi.string().length(24).required(),
-        type: Joi.string().valid("student", "teacher").required(),
       });
-      const { error } = schema.validate(req.body);
+      const { error } = schema.validate({ id });
       if (error) {
         return next(error);
       }
-      const { type, id } = req.body;
-      const filePath = req.file.path;
 
-      if (type === "student") {
-        try {
-          await Student.findOneAndUpdate({ _id: id }, { avatar: filePath });
-        } catch (error) {
-          return next(error);
-        }
-      } else {
-        try {
-          await Teacher.findOneAndUpdate({ _id: id }, { avatar: filePath });
-        } catch (error) {
-          return next(error);
+      const file = req.files;
+      if (file) {
+        const key = Object.keys(file)[0];
+
+        if (key === "student_avatar") {
+          doOperationStudentUpdate(
+            id,
+            { student_avatar: file["student_avatar"][0].path },
+            next
+          );
+        } else if (key === "parent_avatar") {
+          doOperationStudentUpdate(
+            id,
+            { parent_avatar: file["parent_avatar"][0].path },
+            next
+          );
+        } else if (key === "student_doc_front") {
+          doOperationStudentUpdate(
+            id,
+            { student_doc_front: file["student_doc_front"][0].path },
+            next
+          );
+        } else if (key === "student_doc_back") {
+          doOperationStudentUpdate(
+            id,
+            { student_doc_back: file["student_doc_back"][0].path },
+            next
+          );
+        } else if (key === "parent_doc_front") {
+          doOperationStudentUpdate(
+            id,
+            { parent_doc_front: file["parent_doc_front"][0].path },
+            next
+          );
+        } else if (key === "parent_doc_back") {
+          doOperationStudentUpdate(
+            id,
+            { parent_doc_back: file["parent_doc_back"][0].path },
+            next
+          );
+        } else {
+          res.status(400).json({
+            status: false,
+            message: 'photo upload has failed.',
+          });
         }
       }
       res.json({
         status: true,
-        message: `${type} picture updated successfully!!`,
+        message: 'photo updated successfully!!',
       });
     });
   },
-
-  //Upload Fornt Doctments Student,Parent,Teacher
-  async uploadDocmentFrontPhoto(req, res, next) {
-    uploadFrontDocments(req, res, async (err) => {
-      if (err) {
-        return next(CustomErrorHandler.serverError());
-      }
-      //validation
-      const schema = Joi.object({
-        id: Joi.string().length(24).required(),
-        type: Joi.string().valid("student", "teacher", "parent").required(),
-      });
-      const { error } = schema.validate(req.body);
-      if (error) {
-        return next(error);
-      }
-      const { type, id } = req.body;
-      const doc_front_avatar = req.file.path;
-
-      if (type === "student") {
-        try {
-          await Student.findOneAndUpdate({ _id: id }, { doc_front_avatar });
-        } catch (error) {
-          return next(error);
-        }
-      } else if (type === "parent") {
-        try {
-          await Parent.findOneAndUpdate({ _id: id }, { doc_front_avatar });
-        } catch (error) {
-          return next(error);
-        }
-      } else {
-        try {
-          await Teacher.findOneAndUpdate({ _id: id }, { doc_front_avatar });
-        } catch (error) {
-          return next(error);
-        }
-      }
-      res.json({
-        status: true,
-        message: `${type} document front updated successfully!!`,
-      });
-    });
-  },
-
-  //Upload Back Doctments Student,Parent,Teacher
-  async uploadDocmentBackPhoto(req, res, next) {
-    uploadBackDocments(req, res, async (err) => {
-      if (err) {
-        return next(CustomErrorHandler.serverError());
-      }
-      //validation
-      const schema = Joi.object({
-        id: Joi.string().length(24).required(),
-        type: Joi.string().valid("student", "teacher", "parent").required(),
-      });
-      const { error } = schema.validate(req.body);
-      if (error) {
-        return next(error);
-      }
-      const { type, id } = req.body;
-      const doc_back_avatar = req.file.path;
-
-      if (type === "student") {
-        try {
-          await Student.findOneAndUpdate({ _id: id }, { doc_back_avatar });
-        } catch (error) {
-          return next(error);
-        }
-      } else if (type === "parent") {
-        try {
-          await Parent.findOneAndUpdate({ _id: id }, { doc_back_avatar });
-        } catch (error) {
-          return next(error);
-        }
-      } else {
-        try {
-          await Teacher.findOneAndUpdate({ _id: id }, { doc_back_avatar });
-        } catch (error) {
-          return next(error);
-        }
-      }
-      res.json({
-        status: true,
-        message: `${type} document back updated successfully!!`,
-      });
-    });
-  },
+ 
   //delete uploaded file photos,front doc,back doc vai student,teacher,parent
   async deleteUploadedPhoto(req, res, next) {
     const id = req.query.id;
@@ -416,10 +280,8 @@ const adminController = {
     //validation
     const schema = Joi.object({
       id: Joi.string().length(24).required(),
-      type: Joi.string().valid("student", "teacher", "parent").required(),
-      source: Joi.string()
-        .valid("avatar", "doc_front_avatar", "doc_back_avatar")
-        .required(),
+      type: Joi.string().valid("student", "teacher").required(),
+      source: Joi.string().valid("student_avatar", "parent_avatar", "student_doc_front", "student_doc_back", "parent_doc_front", "parent_doc_back").required(),
     });
     const { error } = schema.validate({ id, type, source });
     if (error) {
@@ -438,20 +300,6 @@ const adminController = {
         return next(error);
       }
     }
-
-    //For Parent
-    if (type === "parent") {
-      try {
-        const document = await Parent.findOneAndUpdate(
-          { _id: id },
-          { [source]: "" }
-        );
-        doOperationDelete(document, source, next);
-      } catch (error) {
-        return next(error);
-      }
-    }
-
     //for Teacher Operation
     if (type === "teacher") {
       try {
@@ -472,18 +320,23 @@ const adminController = {
   },
 };
 
-//for Common methods
+//for Common methods delete
 const doOperationDelete = (document, source, next) => {
   let imagePath;
-  if (source === "avatar") {
-    imagePath = document.avatar;
+  if (source === "student_avatar") {
+    imagePath = document.student_avatar;
+  }else if (source === "parent_avatar") {
+    imagePath = document.parent_avatar;
+  }else if (source === "student_doc_front") {
+    imagePath = document.student_doc_front;
+  }else if (source === "student_doc_back") {
+    imagePath = document.student_doc_back;
+  }else if (source === "parent_doc_front") {
+    imagePath = document.parent_doc_front;
+  }else if (source === "parent_doc_back") {
+    imagePath = document.parent_doc_back;
   }
-  if (source === "doc_front_avatar") {
-    imagePath = document.doc_front_avatar;
-  }
-  if (source === "doc_back_avatar") {
-    imagePath = document.doc_back_avatar;
-  }
+
   //image delete
   fs.unlink(`${appRoot}/${imagePath}`, (err) => {
     if (err) {
