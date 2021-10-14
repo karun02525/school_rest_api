@@ -131,9 +131,18 @@ const teacherController = {
 
   //find one teacher
   async findTeacher(req, res, next) {
+    const id=req.params.id
+    let query={};
+      if(id.length===24) {
+        query= { _id: id }
+      }else  if(id.length===10) {
+          query= { mobile: id }
+      }else{
+        return res.status(400).json({message:'Invalid input field'});
+      }
     let document;
     try {
-      document = await Teacher.findOne({ _id: req.params.id });
+      document = await Teacher.findOne(query);
     } catch (error) {
       return next(CustomErrorHandler.serverError);
     }

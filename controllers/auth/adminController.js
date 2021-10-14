@@ -51,7 +51,7 @@ const adminController = {
     }
 
     try {
-      const exist = await Student.exists({ student_id, rollno, class_id });
+      const exist = await Student.exists({rollno, classes:class_id });
       if (exist) {
         return next(
           CustomErrorHandler.alreadyExist("this roll number already taken.")
