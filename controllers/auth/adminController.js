@@ -36,45 +36,57 @@ const adminController = {
   // Assign Roll No
   async assignRollno(req, res, next) {
     //validation
-    const class_id = req.query.class_id;
     const student_id = req.query.student_id;
-    const rollno = req.query.rollno;
+    const rollno = parseInt(req.query.rollno);
+    const class_id = req.query.class_id;
 
     const rollnoSchema = Joi.object({
       student_id: Joi.string().length(24).required(),
       class_id: Joi.string().length(24).required(),
       rollno: Joi.number().min(1).max(99).required(),
     });
-    const { error } = rollnoSchema.validate({ class_id, student_id, rollno });
+    const { error } = rollnoSchema.validate({student_id, rollno,class_id });
     if (error) {
       return next(error);
     }
 
     try {
-      const exist = await Student.exists({rollno, classes:class_id });
-      if (exist) {
+      const exist = await Student.exists({_id:student_id,classes:class_id});
+      if (!exist) {
         return next(
-          CustomErrorHandler.alreadyExist("this roll number already taken.")
+          CustomErrorHandler.alreadyExist("the class id not exist please try again.")
         );
       }
     } catch (error) {
       return next(error);
     }
 
+    try {
+     // const data = await Student.exists({classes:class_id ,rollno:rollno});
+      const data = await Student.findOne({ $and:[{classes:class_id ,rollno:rollno}]}).populate('classes');
+      if (data) {
+        return next(
+         // CustomErrorHandler.alreadyExist(` already assigned by class roll no.`)
+          CustomErrorHandler.alreadyExist(`${data.fname} ${data.lname} already assigned by class ${data.classes.name} roll no ${data.rollno}.`)
+        );
+      }
+    } catch (error) {
+      return next(error);
+    }
     // than updates
     let document;
     try {
       document = await Student.findOneAndUpdate(
         { _id: student_id },
-        { rollno },
+        { rollno},
         { new: true }
-      );
+      ).populate('classes');
     } catch (error) {
       return next(error);
     }
     res.status(200).json({
       status: true,
-      message: "Roll no updated successfully!!",
+      message:`${document.fname} ${document.lname} roll no assigned by class ${document.classes.name} roll no ${document.rollno} successfully!!.`,
       data: document,
     });
   },

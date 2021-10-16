@@ -21,8 +21,9 @@ router.get('/teacher',teacherController.findAllTeacher)
 router.post('/student',studentController.createStudent)
 router.put('/student/:id',studentController.updateStudent)
 router.delete('/student/:id',studentController.deleteStudent)
-router.get('/student/:id',studentController.findStudent)
+router.get('/student/:id',studentController.findOneStudent)
 router.get('/student',studentController.findAllStudent)
+router.get('/search-students',studentController.searchStudents)
 
 
 export default router;
