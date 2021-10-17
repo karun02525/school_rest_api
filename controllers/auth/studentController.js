@@ -153,6 +153,7 @@ const studentController = {
     } catch (error) {
       return next(CustomErrorHandler.serverError());
     }
+    
     res
       .status(200)
       .json({ status: true, message: "show a student", data: document });

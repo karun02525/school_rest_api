@@ -1,8 +1,7 @@
-import { Teacher } from "../../models";
+import { Teacher, Student } from "../../models";
 import CustomErrorHandler from "../../services/CustomErrorHandler";
 import { teacherValidator } from "../../validators";
 import Joi from "joi";
-
 
 const teacherController = {
   async createTeacher(req, res, next) {
@@ -15,9 +14,7 @@ const teacherController = {
       const exist = await Teacher.exists({ mobile: req.body.mobile });
       if (exist) {
         return next(
-          CustomErrorHandler.alreadyExist(
-            "this mobile number already taken."
-          )
+          CustomErrorHandler.alreadyExist("this mobile number already taken.")
         );
       }
     } catch (error) {
@@ -25,30 +22,28 @@ const teacherController = {
     }
 
     try {
-        const exist = await Teacher.exists({ email: req.body.email });
-        if (exist) {
-          return next(
-            CustomErrorHandler.alreadyExist(
-              "this email id already taken."
-            )
-          );
-        }
-      } catch (error) {
-        return next(error);
+      const exist = await Teacher.exists({ email: req.body.email });
+      if (exist) {
+        return next(
+          CustomErrorHandler.alreadyExist("this email id already taken.")
+        );
       }
+    } catch (error) {
+      return next(error);
+    }
 
-      try {
-        const exist = await Teacher.exists({ doc_id: req.body.doc_id });
-        if (exist) {
-          return next(
-            CustomErrorHandler.alreadyExist(
-              "this teacher document id already taken."
-            )
-          );
-        }
-      } catch (error) {
-        return next(error);
+    try {
+      const exist = await Teacher.exists({ doc_id: req.body.doc_id });
+      if (exist) {
+        return next(
+          CustomErrorHandler.alreadyExist(
+            "this teacher document id already taken."
+          )
+        );
       }
+    } catch (error) {
+      return next(error);
+    }
 
     let result;
     try {
@@ -58,53 +53,57 @@ const teacherController = {
       return next(error);
     }
 
-    res.status(201).json({ status: true, message: "successfully create a teacher and please upload documents.",id:result._id});
+    res
+      .status(201)
+      .json({
+        status: true,
+        message: "successfully create a teacher and please upload documents.",
+        id: result._id,
+      });
   },
 
   async updateTeacher(req, res, next) {
     //validation
     const teacherUpdateSchema = Joi.object({
-        email:Joi.string().min(3).max(25).email(),
-        mobile:Joi.string().length(10).pattern(/^[0-9]+$/),  
-        qualification: Joi.string().min(3).max(15),
+      email: Joi.string().min(3).max(25).email(),
+      mobile: Joi.string()
+        .length(10)
+        .pattern(/^[0-9]+$/),
+      qualification: Joi.string().min(3).max(15),
     });
     const { error } = teacherUpdateSchema.validate(req.body);
     if (error) {
       return next(error);
     }
-    const { mobile, email,qualification } = req.body;
+    const { mobile, email, qualification } = req.body;
     try {
-        const exist = await Teacher.exists({mobile});
-        if (exist) {
-          return next(
-            CustomErrorHandler.alreadyExist(
-              "this mobile number already taken."
-            )
-          );
-        }
-      } catch (error) {
-        return next(error);
+      const exist = await Teacher.exists({ mobile });
+      if (exist) {
+        return next(
+          CustomErrorHandler.alreadyExist("this mobile number already taken.")
+        );
       }
-  
-      try {
-          const exist = await Teacher.exists({ email });
-          if (exist) {
-            return next(
-              CustomErrorHandler.alreadyExist(
-                "this email id already taken."
-              )
-            );
-          }
-        } catch (error) {
-          return next(error);
-        }
-  
+    } catch (error) {
+      return next(error);
+    }
+
+    try {
+      const exist = await Teacher.exists({ email });
+      if (exist) {
+        return next(
+          CustomErrorHandler.alreadyExist("this email id already taken.")
+        );
+      }
+    } catch (error) {
+      return next(error);
+    }
+
     // than updates
     let document;
     try {
       document = await Teacher.findOneAndUpdate(
         { _id: req.params.id },
-        { mobile, email,qualification },
+        { mobile, email, qualification },
         { new: true }
       );
     } catch (error) {
@@ -126,27 +125,31 @@ const teacherController = {
     } catch (error) {
       return next(error);
     }
-    res.status(200).json({ status: true, message: "successfully deleted teacher!" });
+    res
+      .status(200)
+      .json({ status: true, message: "successfully deleted teacher!" });
   },
 
   //find one teacher
   async findTeacher(req, res, next) {
-    const id=req.params.id
-    let query={};
-      if(id.length===24) {
-        query= { _id: id }
-      }else  if(id.length===10) {
-          query= { mobile: id }
-      }else{
-        return res.status(400).json({message:'Invalid input field'});
-      }
+    const id = req.params.id;
+    let query = {};
+    if (id.length === 24) {
+      query = { _id: id };
+    } else if (id.length === 10) {
+      query = { mobile: id };
+    } else {
+      return res.status(400).json({ message: "Invalid input field" });
+    }
     let document;
     try {
       document = await Teacher.findOne(query);
     } catch (error) {
       return next(CustomErrorHandler.serverError);
     }
-    res.status(200).json({ status: true, message: "show a teacher",data:document});
+    res
+      .status(200)
+      .json({ status: true, message: "show a teacher", data: document });
   },
 
   //find all teacher
@@ -159,7 +162,79 @@ const teacherController = {
     } catch (error) {
       return next(CustomErrorHandler.serverError());
     }
-    res.status(200).json({ status: true, message: "successfully show all teacher!",data:document });
+    res
+      .status(200)
+      .json({
+        status: true,
+        message: "successfully show all teacher!",
+        data: document,
+      });
+  },
+
+  //find one own teacher or students  ************************************
+  async findTeacherOrStudents(req, res, next) {
+    const teacher_id = req.params.id;
+    //validation
+    const schema = Joi.object({
+      teacher_id: Joi.string().length(24).required(),
+    });
+    const { error } = schema.validate({ teacher_id });
+    if (error) {
+      return next(error);
+    }
+
+    let output = {};
+    let document;
+    try {
+      document = await Teacher.findOne({ _id: teacher_id }).populate(
+        "classes",
+        "_id name"
+      );
+    } catch (error) {
+      return next(CustomErrorHandler.serverError);
+    }
+
+   let documentStudents=[];
+   if(document.classes !=null && document.classes !== undefined){
+      try {
+        documentStudents = await Student.find({
+          classes: document.classes._id,
+        }).populate("classes", "_id name");
+      } catch (error) {
+        return next(CustomErrorHandler.serverError());
+      }
+    }
+    output = {
+      teacher: document,
+      student: documentStudents,
+    };
+    res
+      .status(200)
+      .json({
+        status: true,
+        message: "show a teacher info and assigned class wise students",
+        data: output,
+      });
+  },
+
+  //find all teacher
+  async findAllTeacher(req, res, next) {
+    let document;
+    try {
+      document = await Teacher.find()
+        .populate("classes")
+        .select("-updatedAt -__v")
+        .sort({ _id: 1 });
+    } catch (error) {
+      return next(CustomErrorHandler.serverError());
+    }
+    res
+      .status(200)
+      .json({
+        status: true,
+        message: "successfully show all teacher!",
+        data: document,
+      });
   },
 };
 

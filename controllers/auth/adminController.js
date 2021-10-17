@@ -115,12 +115,8 @@ const adminController = {
 
     let document;
     try {
-      document = await Student.find({ classes:class_id })
-        .populate("classes", "_id name")
-        // .populate(
-        //   "teacher",
-        //   "fname lname email mobile gender qualification avatar"
-        // );
+      document = await Student.find({ classes:class_id }).populate("classes", "_id name")
+      
       if (document.length === 0) {
         return res
           .status(400)
@@ -176,6 +172,9 @@ const adminController = {
         { teacher: teacher_id, status: 1 },
         { new: true }
       );
+
+      await Teacher.findOneAndUpdate({ _id: teacher_id },{ classes: req.params.id});
+
     } catch (error) {
       return next(error);
     }
@@ -198,20 +197,25 @@ const adminController = {
   },
 
 
-  //delete assign class teacher
+  //delete assign class teacher**************
   async deleteAssignClassTeacher(req, res, next) {
+    const class_id=req.params.id;
     let document;
     try {
       document = await AssignTeacher.findOneAndUpdate(
-        { class_id: req.params.id },
+        { class_id},
         { teacher: null, status: 0 },
         { new: true }
       );
-    } catch (error) {
-      return next(error);
-    }
-    res
-      .status(200)
+      try{
+        await Teacher.findOneAndUpdate({class_id},{ classes:null},{ new: true });
+      } catch (error) {
+        return next(error);
+      }
+      } catch (error) {
+        return next(error);
+      }
+      res.status(200)
       .json({ status: true, message: "successfully deleted assign teacher!" });
   },
 

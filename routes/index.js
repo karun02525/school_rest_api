@@ -26,4 +26,8 @@ router.get('/student',studentController.findAllStudent)
 router.get('/search-students',studentController.searchStudents)
 
 
+
+router.get('/teacher-info/:id',teacherController.findTeacherOrStudents)
+
+
 export default router;

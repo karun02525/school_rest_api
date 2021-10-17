@@ -24,11 +24,7 @@ const TeacherSchema = new Schema({
     teacher_doc_back:{type:String,default:''},
     certificate_doc_front:{type:String,default:''},
     certificate_doc_back:{type:String,default:''},
-
-
-    classes: { type: mongoose.Schema.Types.ObjectId, ref: 'Classes'},
-    students: { type: mongoose.Schema.Types.ObjectId, ref: 'Student'},
-
+    classes: { type: mongoose.Schema.Types.ObjectId, ref: 'Classes'}
 },{timestamps:true});
 
 
