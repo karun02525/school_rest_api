@@ -26,6 +26,9 @@ router.get('/student',studentController.findAllStudent)
 router.get('/search-students',studentController.searchStudents)
 
 
+router.get('/student-parent',studentController.findStudentsParent)
+
+
 
 router.get('/teacher-info/:id',teacherController.findTeacherOrStudents)
 

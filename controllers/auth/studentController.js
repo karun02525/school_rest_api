@@ -158,6 +158,33 @@ const studentController = {
       .status(200)
       .json({ status: true, message: "show a student", data: document });
   },
+ 
+ 
+  //find find Students Parent with parent id
+  async findStudentsParent(req, res, next) {
+    const parent_doc_id = req.query.parent_doc_id;
+    const mobile = req.query.mobile;
+   
+    let query = {};
+    if (parent_doc_id !=null && parent_doc_id.length >=5) {
+      query = { parent_doc_id};
+    } else if (mobile !=null && mobile.length === 10) {
+      query = { mobile };
+    } else {
+      return res.status(400).json({ message: "Invalid input field" });
+    }
+
+    let document;
+    try {
+      document = await Student.find(query).populate('classes','name');
+    } catch (error) {
+      return next(CustomErrorHandler.serverError());
+    }
+    
+    res
+      .status(200)
+      .json({ status: true, message: "show a parent list of students", data: document });
+  },
 
   //find all Student
   async findAllStudent(req, res, next) {

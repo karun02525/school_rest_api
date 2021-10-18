@@ -21,7 +21,7 @@ const studentSchema = Joi.object({
     mother_occupation: Joi.string().min(2).max(20).required(),
     mother_qualification: Joi.string().min(2).max(20).required(),
     parent_document: Joi.string().min(2).max(20).required(),
-    parent_doc_id: Joi.string().min(2).max(10).required(),
+    parent_doc_id: Joi.string().min(6).max(20).required(),
     address: Joi.string().min(20).max(100).required(),
     state: Joi.string().min(4).max(20).required(),
     distc: Joi.string().min(4).max(20).required(),
