@@ -188,7 +188,7 @@ const teacherController = {
     try {
       document = await Teacher.findOne({ _id: teacher_id }).populate(
         "classes",
-        "_id name"
+        "name"
       );
     } catch (error) {
       return next(CustomErrorHandler.serverError);

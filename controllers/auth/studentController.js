@@ -174,6 +174,7 @@ const studentController = {
       return res.status(400).json({ message: "Invalid input field" });
     }
 
+    let output = {};
     let document;
     try {
       document = await Student.find(query).populate('classes','name');
@@ -181,6 +182,11 @@ const studentController = {
       return next(CustomErrorHandler.serverError());
     }
     
+    output = {
+      teacher: document,
+      student: documentStudents,
+    };
+
     res
       .status(200)
       .json({ status: true, message: "show a parent list of students", data: document });
