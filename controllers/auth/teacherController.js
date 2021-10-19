@@ -53,13 +53,11 @@ const teacherController = {
       return next(error);
     }
 
-    res
-      .status(201)
-      .json({
-        status: true,
-        message: "successfully create a teacher and please upload documents.",
-        id: result._id,
-      });
+    res.status(201).json({
+      status: true,
+      message: "successfully create a teacher and please upload documents.",
+      id: result._id,
+    });
   },
 
   async updateTeacher(req, res, next) {
@@ -132,18 +130,30 @@ const teacherController = {
 
   //find one teacher
   async findTeacher(req, res, next) {
-    const id = req.params.id;
+    const teacher_id = req.query.teacher_id;
+    const class_id = req.query.class_id;
+
+    //validation
+    const schema = Joi.object({
+      teacher_id: Joi.string().length(24),
+      class_id: Joi.string().length(24),
+    });
+    const { error } = schema.validate({ teacher_id, class_id });
+    if (error) {
+      return next(error);
+    }
+
     let query = {};
-    if (id.length === 24) {
-      query = { _id: id };
-    } else if (id.length === 10) {
-      query = { mobile: id };
+    if (teacher_id != null) {
+      query = { _id: teacher_id };
+    } else if (class_id != null) {
+      query = { classes: class_id };
     } else {
       return res.status(400).json({ message: "Invalid input field" });
     }
     let document;
     try {
-      document = await Teacher.findOne(query);
+      document = await Teacher.findOne(query).populate('classes','name');
     } catch (error) {
       return next(CustomErrorHandler.serverError);
     }
@@ -162,13 +172,11 @@ const teacherController = {
     } catch (error) {
       return next(CustomErrorHandler.serverError());
     }
-    res
-      .status(200)
-      .json({
-        status: true,
-        message: "successfully show all teacher!",
-        data: document,
-      });
+    res.status(200).json({
+      status: true,
+      message: "successfully show all teacher!",
+      data: document,
+    });
   },
 
   //find one own teacher or students  ************************************
@@ -194,8 +202,8 @@ const teacherController = {
       return next(CustomErrorHandler.serverError);
     }
 
-   let documentStudents=[];
-   if(document.classes !=null && document.classes !== undefined){
+    let documentStudents = [];
+    if (document.classes != null && document.classes !== undefined) {
       try {
         documentStudents = await Student.find({
           classes: document.classes._id,
@@ -208,33 +216,11 @@ const teacherController = {
       teacher: document,
       student: documentStudents,
     };
-    res
-      .status(200)
-      .json({
-        status: true,
-        message: "show a teacher info and assigned class wise students",
-        data: output,
-      });
-  },
-
-  //find all teacher
-  async findAllTeacher(req, res, next) {
-    let document;
-    try {
-      document = await Teacher.find()
-        .populate("classes")
-        .select("-updatedAt -__v")
-        .sort({ _id: 1 });
-    } catch (error) {
-      return next(CustomErrorHandler.serverError());
-    }
-    res
-      .status(200)
-      .json({
-        status: true,
-        message: "successfully show all teacher!",
-        data: document,
-      });
+    res.status(200).json({
+      status: true,
+      message: "show a teacher info and assigned class wise students",
+      data: output,
+    });
   },
 };
 

@@ -1,4 +1,3 @@
-import { defaults } from "joi";
 import mongoose  from "mongoose";
 
 const Schema = mongoose.Schema;
@@ -29,6 +28,7 @@ const StudentSchema = new Schema({
     distc:{type:String,required:true},
     post_office:{type:String,required:true},
     pincode:{type:String,required:true},
+    address:{type:String,required:true},
     parent_avatar:{type:String,default:''},
     parent_doc_front:{type:String,default:''},
     parent_doc_back:{type:String,default:''},

@@ -13,7 +13,7 @@ router.get('/class',classController.findAllClass)
 router.post('/teacher',teacherController.createTeacher)
 router.put('/teacher/:id',teacherController.updateTeacher)
 router.delete('/teacher/:id',teacherController.deleteTeacher)
-router.get('/teacher/:id',teacherController.findTeacher)
+router.get('/teacher',teacherController.findTeacher)
 router.get('/teacher',teacherController.findAllTeacher)
 
 
