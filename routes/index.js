@@ -26,10 +26,14 @@ router.get('/student',studentController.findAllStudent)
 router.get('/search-students',studentController.searchStudents)
 
 
+//for Student app
 router.get('/student-parent',studentController.findStudentsParent)
+router.get('/student-attendance/:id',studentController.findAttendance)
+router.get('/student-notification/:id',studentController.findNotification)
 
 
-
+// for Teacher app
+router.post('/student-attendance',teacherController.doAttenceTeacher)
 router.get('/teacher-info/:id',teacherController.findTeacherOrStudents)
 
 

@@ -1,6 +1,6 @@
-import { Teacher, Student } from "../../models";
+import { Teacher, Student, Attendance, Notification } from "../../models";
 import CustomErrorHandler from "../../services/CustomErrorHandler";
-import { teacherValidator } from "../../validators";
+import { teacherValidator, attendanceValidator } from "../../validators";
 import Joi from "joi";
 
 const teacherController = {
@@ -153,7 +153,7 @@ const teacherController = {
     }
     let document;
     try {
-      document = await Teacher.findOne(query).populate('classes','name');
+      document = await Teacher.findOne(query).populate("classes", "name");
     } catch (error) {
       return next(CustomErrorHandler.serverError);
     }
@@ -220,6 +220,83 @@ const teacherController = {
       status: true,
       message: "show a teacher info and assigned class wise students",
       data: output,
+    });
+  },
+
+  //find do Attence teacher *******************************
+  async doAttenceTeacher(req, res, next) {
+    const { error } = attendanceValidator.validate(req.body);
+    if (error) {
+      return next(error);
+    }
+    const { teacher_id, class_id, attlist } = req.body;
+    try {
+      const startOfDay = new Date(
+        new Date().setUTCHours(0, 0, 0, 0)
+      ).toISOString();
+      const endOfDay = new Date(
+        new Date().setUTCHours(23, 59, 59, 999)
+      ).toISOString();
+
+      const exist = await Attendance.findOne({
+        $and: [
+          {
+            teacher_id:teacher_id,
+            class_id:class_id,
+            createdAt: { $gte: startOfDay, $lt: endOfDay },
+          },
+        ],
+      }).lean();
+      if (exist) {
+        return next(
+          CustomErrorHandler.alreadyExist(
+            `${exist.createdAt} today already submited attendance.`
+          )
+        );
+      }
+    } catch (error) {
+      return next(error);
+    }
+
+    attlist.map(async (val) => {
+      const studentId = val.student_id;
+      const attType = val.att_type;
+      const notificationData = {
+        teacher_id,
+        class_id,
+        student_id: studentId,
+        noti_type: attType,
+        title: "attendance",
+        message: "Attendance submited successfully!!",
+      };
+
+      try {
+        let saveData = new Notification(notificationData);
+        result = await saveData.save();
+      } catch (error) {
+        return next(error);
+      }
+    });
+
+    // for(let i in attlist){
+    //     const studentId= attlist[i].student_id
+    //     const attType= attlist[i].att_type
+    //     console.log("studentId: ",studentId);
+    //     console.log("attType: ",attType);
+    // }
+
+    let result;
+    try {
+      let saveData = new Attendance({ ...req.body });
+      result = await saveData.save();
+    } catch (error) {
+      return next(error);
+    }
+
+    res.status(201).json({
+      status: true,
+      message: "attendance submited successfully!",
+      data: result,
     });
   },
 };

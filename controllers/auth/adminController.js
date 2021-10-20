@@ -1,5 +1,5 @@
 import Joi from "joi";
-import { Student, AssignTeacher, Parent, Teacher } from "../../models";
+import { Student, AssignTeacher, Attendance, Teacher } from "../../models";
 import CustomErrorHandler from "../../services/CustomErrorHandler";
 import multer from "multer";
 import path from "path";
@@ -218,6 +218,23 @@ const adminController = {
       res.status(200)
       .json({ status: true, message: "successfully deleted assign teacher!" });
   },
+
+
+
+    //find all Attendance Student
+    async findAttendance(req, res, next) {
+      let document;
+      try {
+        document = await Attendance.find();
+      } catch (error) {
+        return next(CustomErrorHandler.serverError());
+      }
+      res
+        .status(200)
+        .json({ status: true, message: "showing all notification", data: document });
+    },
+
+
 
   //find Assign Teacher Class Id
   async findAssignTeacherClassId(req, res, next) {

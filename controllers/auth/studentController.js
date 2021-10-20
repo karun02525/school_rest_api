@@ -1,4 +1,4 @@
-import { Student, Parent } from "../../models";
+import { Student, Attendance,Notification } from "../../models";
 import CustomErrorHandler from "../../services/CustomErrorHandler";
 import { studentValidator } from "../../validators";
 import Joi from "joi";
@@ -200,6 +200,39 @@ const studentController = {
       .status(200)
       .json({ status: true, message: "showing all student", data: document });
   },
+
+
+  //find all Attendance Student
+  async findAttendance(req, res, next) {
+    console.log("atten",req.params.id);
+    let document;
+    try {
+      document = await Attendance.find({"attlist.student_id" :req.params.id});
+    } catch (error) {
+      return next(CustomErrorHandler.serverError());
+    }
+    res
+      .status(200)
+      .json({ status: true, message: "showing all attendance", data: document });
+  },
+
+  //find all Notification by id
+  async findNotification(req, res, next) {
+    let document;
+    try {
+      document = await Notification.find({student_id:req.params.id})
+        .select("-updatedAt -__v");
+    } catch (error) {
+      return next(CustomErrorHandler.serverError());
+    }
+    res
+      .status(200)
+      .json({ status: true, message: "showing all notification", data: document });
+  },
+
+
+
+
 };
 
 export default studentController;

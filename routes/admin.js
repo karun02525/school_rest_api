@@ -21,6 +21,9 @@ router.post('/upload-teacher-files',adminController.uploadTeacherFiles)
 router.delete('/delete-upload-file',adminController.deleteUploadedPhoto)
 
 
+router.get('/attendance',adminController.findAttendance)
+
+
 
 
 export default router;
